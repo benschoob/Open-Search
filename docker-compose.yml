@@ -1,0 +1,14 @@
+services:
+  crawler:
+    build: "./crawler"
+    container_name: p1
+    volumes:
+      - ./crawler:/app
+  database:
+    image: mongo:noble
+    container_name: "m1"
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./dbdata:/data/db
+

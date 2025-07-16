@@ -17,6 +17,8 @@ def crawl(url: str, depth: int, seen: set, tasks: Queue):
     robot.set_url(url+"robots.txt")
     robot.read()
 
+    # TODO: send page data to the database
+
     # extract links
     links = list()
     link_tags = doc.find_all('a')

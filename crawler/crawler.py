@@ -80,19 +80,20 @@ pages_crawled = 0
 
 print("Beginning the crawl. . .")
 start_time = time()
-with ThreadPoolExecutor(max_workers=100) as e:
+with ThreadPoolExecutor(max_workers=50) as e:
     while tasks.qsize() > 0 or futures.qsize() > 0:
         if tasks.qsize() > 0:
             t = tasks.get()
             futures.put(e.submit(crawl, t[0], t[1], seen, tasks))
+
+        # Wait for running threads to finish and submit new jobs
+        f = futures.get()
+        if not f.done():
+            futures.put(f) # Task is not done, put it back on the queue
         else:
-            # Wait for running threads to finish and submit new jobs
-            f = futures.get()
-            if not f.done():
-                futures.put(f) # Task is not done, put it back on the queue
-            else:
-                pages_crawled += 1
+            pages_crawled += 1
         print(f"\33[2k\rPages crawled: {pages_crawled}. Tasks in queue: {tasks.qsize()}. Futures in queue: {futures.qsize()}.", end="")
+
 end_time = time()
 
 print(f"\nCrawl complete. Pages crawled: {pages_crawled}. Time elapsed: {end_time - start_time:.2f}s")

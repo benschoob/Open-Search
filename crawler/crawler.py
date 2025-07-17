@@ -3,9 +3,10 @@ from queue import Queue
 from time import time
 
 import urllib.robotparser
+import warnings
 
 import requests # type: ignore
-from bs4 import BeautifulSoup # type: ignore
+from bs4 import BeautifulSoup, XMLParsedAsHTMLWarning # type: ignore
 
 def crawl(url: str, depth: int, seen: set, tasks: Queue):
     # Get page contents
@@ -39,15 +40,18 @@ def crawl(url: str, depth: int, seen: set, tasks: Queue):
                 seen.add(link)
                 tasks.put((link, depth - 1))
 
+
 def parse_seeds(file_path: str) -> list:
     seeds = []
     with open(file_path) as f:
         for line in f:
-            if line[0] != '#': # Ignore commented lines
+            if line[0] != '#' and not line.isspace(): # Ignore comments and empty lines
                 seeds.append(line)
     return seeds
 
 # === Main Program ===
+
+warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
 
 # Parse seeds.txt
 seeds = parse_seeds('./seeds.txt')
@@ -76,18 +80,19 @@ pages_crawled = 0
 
 print("Beginning the crawl. . .")
 start_time = time()
-with ThreadPoolExecutor(max_workers=10) as e:
+with ThreadPoolExecutor(max_workers=100) as e:
     while tasks.qsize() > 0 or futures.qsize() > 0:
         if tasks.qsize() > 0:
             t = tasks.get()
             futures.put(e.submit(crawl, t[0], t[1], seen, tasks))
-            pages_crawled += 1
         else:
             # Wait for running threads to finish and submit new jobs
-            try:
-                futures.get().result()
-            except:
-                print("ERROR handling future.")
+            f = futures.get()
+            if not f.done():
+                futures.put(f) # Task is not done, put it back on the queue
+            else:
+                pages_crawled += 1
+        print(f"\33[2k\rPages crawled: {pages_crawled}. Tasks in queue: {tasks.qsize()}. Futures in queue: {futures.qsize()}.", end="")
 end_time = time()
 
-print(f"Crawl complete. Pages crawled: {pages_crawled}. Time elapsed: {end_time - start_time:.2f}s")
+print(f"\nCrawl complete. Pages crawled: {pages_crawled}. Time elapsed: {end_time - start_time:.2f}s")

@@ -39,11 +39,23 @@ def crawl(url: str, depth: int, seen: set, tasks: Queue):
                 seen.add(link)
                 tasks.put((link, depth - 1))
 
+def parse_seeds(file_path: str) -> list:
+    seeds = []
+    with open(file_path) as f:
+        for line in f:
+            if line[0] != '#': # Ignore commented lines
+                seeds.append(line)
+    return seeds
+
 # === Main Program ===
-seeds = [
-    "https://en.wikipedia.org/"
-]
-depth = 1
+
+# Parse seeds.txt
+seeds = parse_seeds('./seeds.txt')
+if len(seeds) == 0:
+    print("ERROR: no seeds provided. You can create seeds by editing 'seeds.txt'.")
+    exit(1)
+
+depth = 3
 
 # Task queue: contains links we need to traverse
 tasks = Queue()

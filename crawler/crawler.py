@@ -56,10 +56,10 @@ warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
 # Parse seeds.txt
 seeds = parse_seeds('./seeds.txt')
 if len(seeds) == 0:
-    print("ERROR: no seeds provided. You can create seeds by editing 'seeds.txt'.")
+    print("ERROR: no seeds provided. You can add seeds by editing 'seeds.txt'.")
     exit(1)
 
-depth = 3
+depth = 2
 
 # Task queue: contains links we need to traverse
 tasks = Queue()
@@ -80,19 +80,20 @@ pages_crawled = 0
 
 print("Beginning the crawl. . .")
 start_time = time()
-with ThreadPoolExecutor(max_workers=50) as e:
+with ThreadPoolExecutor(max_workers=1000) as e:
     while tasks.qsize() > 0 or futures.qsize() > 0:
         if tasks.qsize() > 0:
             t = tasks.get()
-            futures.put(e.submit(crawl, t[0], t[1], seen, tasks))
+            futures.put(e.submit(crawl, t[0], t[1], seen, tasks)) # Start the task
 
-        # Wait for running threads to finish and submit new jobs
-        f = futures.get()
-        if not f.done():
-            futures.put(f) # Task is not done, put it back on the queue
-        else:
-            pages_crawled += 1
-        print(f"\33[2k\rPages crawled: {pages_crawled}. Tasks in queue: {tasks.qsize()}. Futures in queue: {futures.qsize()}.", end="")
+        # Check if threads have finished
+        for _ in range(0, futures.qsize()):
+            f = futures.get(timeout=10)
+            if not f.done():
+                futures.put(f) # Task is not done, put it back on the queue
+            else:
+                pages_crawled += 1
+        print(f"\33[2k\rPages crawled: {pages_crawled}. Pages seen: {len(seen)}. Tasks in queue: {tasks.qsize()}. Futures in queue: {futures.qsize()}.", end="")
 
 end_time = time()
 

@@ -93,10 +93,18 @@ async def crawl(url: str, depth: int):
 Parses relevant information from an HTML page and returns it in a dictionary
 """
 def parse_page(doc: BeautifulSoup) -> dict:
+    title = doc.find('title').contents
+    desc = doc.find('meta', {'name' : 'description'})
+    if desc != None:
+        desc = desc['content']
+    keywords = doc.find('meta', {'name': 'keywords'})
+    if keywords != None:
+        keywords = keywords['content']
+
     return {
-        'title'         : doc.find('title').contents,
-        'description'   : doc.find('meta', {'name' : 'description'})['content'],
-        'keywords'      : doc.find('meta', {'name': 'keywords'})['content'],
+        'title'         : title,
+        'description'   : desc,
+        'keywords'      : keywords,
     }
 
 """

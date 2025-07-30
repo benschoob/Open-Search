@@ -94,7 +94,9 @@ Parses relevant information from an HTML page and returns it in a dictionary
 """
 def parse_page(doc: BeautifulSoup) -> dict:
     return {
-        'title': doc.find('title').contents
+        'title'         : doc.find('title').contents,
+        'description'   : doc.find('meta', {'name' : 'description'})['content'],
+        'keywords'      : doc.find('meta', {'name': 'keywords'})['content'],
     }
 
 """

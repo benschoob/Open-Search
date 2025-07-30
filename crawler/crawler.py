@@ -68,6 +68,8 @@ async def crawl(url: str, depth: int):
     tasks = []
 
     # TODO: Database entry task
+    obj = parse_page(doc)
+    tasks.append(asyncio.create_task(add_to_db(obj)))
 
     # Recursive crawl tasks
     if (depth > 0):
@@ -78,7 +80,18 @@ async def crawl(url: str, depth: int):
 
     # Return the tasks
     return tasks
-            
+
+"""
+Parses relevant information from an HTML page and returns it in a dictionary
+"""
+def parse_page(doc: BeautifulSoup) -> dict:
+    return {}
+
+"""
+Sends a dictionary to the MongoDB database as a JSON object
+"""
+async def add_to_db(obj: dict):
+    pass
 
 """
 Parses crawler seeds from seeds.txt file
@@ -105,7 +118,7 @@ async def main():
         print("ERROR: no seeds provided. You can add seeds by editing 'seeds.txt'.")
         exit(1)
 
-    depth = 2
+    depth = 1
 
     # Generate initial tasks
     tasks = []

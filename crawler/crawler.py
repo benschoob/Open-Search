@@ -100,11 +100,13 @@ def parse_page(doc: BeautifulSoup) -> dict:
     keywords = doc.find('meta', {'name': 'keywords'})
     if keywords != None:
         keywords = keywords['content']
+    body = [s for s in doc.body.strings]
 
     return {
         'title'         : title,
         'description'   : desc,
         'keywords'      : keywords,
+        'body'          : body,
     }
 
 """

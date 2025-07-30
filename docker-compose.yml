@@ -1,14 +1,24 @@
 services:
-  crawler:
-    build: "./crawler"
-    container_name: p1
-    volumes:
-      - ./crawler:/app
-  database:
+  mongo1:
     image: mongo:noble
-    container_name: "m1"
+    container_name: m1
     ports:
       - "27017:27017"
     volumes:
       - ./dbdata:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  crawler1:
+    build: "./crawler"
+    container_name: p1
+    volumes:
+      - ./crawler:/app
+    depends_on:
+      mongo1:
+        condition: service_healthy
 

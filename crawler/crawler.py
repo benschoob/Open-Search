@@ -8,6 +8,8 @@ import urllib.robotparser
 from bs4 import BeautifulSoup, XMLParsedAsHTMLWarning
 import warnings
 
+import pymongo
+
 warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
 
 """
@@ -90,7 +92,7 @@ def parse_page(doc: BeautifulSoup) -> dict:
 """
 Sends a dictionary to the MongoDB database as a JSON object
 """
-async def add_to_db(obj: dict):
+async def add_to_db(obj: dict, db: pymongo.database):
     pass
 
 """
@@ -119,6 +121,9 @@ async def main():
         exit(1)
 
     depth = 1
+
+    # Connect to the database
+    db_client = pymongo.MongoClient("mongodb://mongo1:27017")
 
     # Generate initial tasks
     tasks = []

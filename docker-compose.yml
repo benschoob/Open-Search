@@ -15,7 +15,7 @@ services:
       start_period: 40s
 
   crawler1:
-    build: "./crawler"
+    build: './crawler'
     container_name: p1
     volumes:
       - ./crawler:/app
@@ -23,3 +23,7 @@ services:
       mongo1:
         condition: service_healthy
 
+  server1:
+    build: './server'
+    container_name: f1
+    volumes: './server:/app'

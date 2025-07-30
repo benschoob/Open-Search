@@ -3,7 +3,8 @@ services:
     image: mongo:noble
     container_name: m1
     ports:
-      - "27017:27017"
+      - '27017:27017'
+      - '28017:28017'
     volumes:
       - ./dbdata:/data/db
     healthcheck:

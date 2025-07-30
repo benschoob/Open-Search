@@ -12,6 +12,13 @@ import pymongo
 
 warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
 
+# Connect to the database
+db_client = pymongo.MongoClient("mongodb://mongo1:27017")
+db = db_client['pages']
+
+seen = set()
+
+
 """
 Gets a page at a given url and returns it
 """
@@ -19,7 +26,6 @@ async def get(url: str) -> str:
     async with aiohttp.request('GET', url) as response:
         return await response.text()
 
-seen = set()
 """
 Crawls a page at a given URL and recursively crawls all pages linked on that page
 """
@@ -35,7 +41,7 @@ async def crawl(url: str, depth: int):
 
     # Check document language (for now, we only want english language pages)
     html = doc.find('html')
-    if html.has_attr('lang') and html['lang'] != 'en':
+    if html.has_attr('lang') and (html['lang'] != 'en' and html['lang'] != 'en-US'):
         return [] # We don't want to crawl this page
 
     # Get robots.txt
@@ -71,7 +77,7 @@ async def crawl(url: str, depth: int):
 
     # TODO: Database entry task
     obj = parse_page(doc)
-    tasks.append(asyncio.create_task(add_to_db(obj)))
+    tasks.append(asyncio.create_task(add_to_db(obj, db)))
 
     # Recursive crawl tasks
     if (depth > 0):
@@ -87,13 +93,17 @@ async def crawl(url: str, depth: int):
 Parses relevant information from an HTML page and returns it in a dictionary
 """
 def parse_page(doc: BeautifulSoup) -> dict:
-    return {}
+    return {
+        'title': doc.find('title').contents
+    }
 
 """
 Sends a dictionary to the MongoDB database as a JSON object
 """
 async def add_to_db(obj: dict, db: pymongo.database):
-    pass
+    col = db['en'] # Add to the collection of english-language pages
+    col.insert_one(obj)
+    return [] # Don't need to return any additional tasks
 
 """
 Parses crawler seeds from seeds.txt file
@@ -121,9 +131,6 @@ async def main():
         exit(1)
 
     depth = 1
-
-    # Connect to the database
-    db_client = pymongo.MongoClient("mongodb://mongo1:27017")
 
     # Generate initial tasks
     tasks = []

@@ -26,4 +26,5 @@ services:
   server1:
     build: './server'
     container_name: f1
-    volumes: './server:/app'
+    volumes: 
+      - './server:/app'

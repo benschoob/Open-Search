@@ -1,4 +1,5 @@
 import asyncio
+import string
 import aiohttp
 
 from time import time
@@ -76,7 +77,7 @@ async def crawl(url: str, depth: int):
     tasks = []
 
     # TODO: Database entry task
-    obj = parse_page(doc)
+    obj = parse_page(doc, url)
     tasks.append(asyncio.create_task(add_to_db(obj, db)))
 
     # Recursive crawl tasks
@@ -92,17 +93,19 @@ async def crawl(url: str, depth: int):
 """
 Parses relevant information from an HTML page and returns it in a dictionary
 """
-def parse_page(doc: BeautifulSoup) -> dict:
-    title = doc.find('title').contents
+def parse_page(doc: BeautifulSoup, url: str) -> dict:
+    # Store page contents as lists of strings (without punctuation)
+    title = ' '.split(doc.find('title').contents[0].translate(str.maketrans("", "", string.punctuation)))
     desc = doc.find('meta', {'name' : 'description'})
     if desc != None:
-        desc = desc['content']
+        desc = ' '.split(desc['content'][0].translate(str.maketrans("", "", string.punctuation)))
     keywords = doc.find('meta', {'name': 'keywords'})
     if keywords != None:
-        keywords = keywords['content']
+        keywords = ' '.split(keywords['content'][0].translate(str.maketrans("", "", string.punctuation)))
     body = ' '.join([s for s in doc.body.strings])
 
     return {
+        'url'           : url,
         'title'         : title,
         'description'   : desc,
         'keywords'      : keywords,

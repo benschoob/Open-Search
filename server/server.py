@@ -3,6 +3,10 @@ import pymongo
 
 app = Flask(__name__)
 
+# Connect to the database
+db_client = pymongo.MongoClient("mongodb://mongo1:27017")
+db = db_client['pages']
+
 """
 Searches the database of pages given various search criteria.
 """
@@ -14,7 +18,7 @@ def search():
 """
 Sorts a collection in the database by relevance to a given list of search terms
 """
-def sort_by_relevance(terms: list):
+def get_by_relevance(terms: list, num_entries: int):
     pass
 
 """

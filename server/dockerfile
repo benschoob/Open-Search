@@ -2,10 +2,11 @@ FROM python:alpine3.22
 
 WORKDIR /app
 
+EXPOSE 5000
+
 # Install dependencies
 RUN pip install flask
 RUN pip install pymongo
 
-ENTRYPOINT [ "python" ]
 # For production applications, change to a production web server
-CMD ["flask run --app server.py --host=0.0.0.0"]
+CMD ["python", "-m", "flask", "--app", "server.py", "run", "--host=0.0.0.0"]

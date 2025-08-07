@@ -26,5 +26,7 @@ services:
   server1:
     build: './server'
     container_name: f1
+    ports:
+      - '8080:5000'
     volumes: 
       - './server:/app'

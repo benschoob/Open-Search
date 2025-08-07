@@ -95,7 +95,7 @@ Parses relevant information from an HTML page and returns it in a dictionary
 """
 def parse_page(doc: BeautifulSoup, url: str) -> dict:
     # Store page contents as lists of strings (without punctuation)
-    title = ' '.split(doc.find('title').contents[0].translate(str.maketrans("", "", string.punctuation)))
+    title = ' '.split(doc.find('title').contents[0])
     desc = doc.find('meta', {'name' : 'description'})
     if desc != None:
         desc = ' '.split(desc['content'][0].translate(str.maketrans("", "", string.punctuation)))

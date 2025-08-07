@@ -1,2 +1,3 @@
 venv/
 dbdata/
+__pycache__/

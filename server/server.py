@@ -22,10 +22,10 @@ Sorts a collection in the database by relevance to a given list of search terms
 """
 def get_by_relevance(terms: list, num_entries: int) -> list:
     # Scaling factors for appearance of search terms in different parts of the documents
-    TITLE_SCALE = 10
-    KEYWORD_SCALE = 5
+    TITLE_SCALE = 20
+    KEYWORD_SCALE = 10
     DESCRIPTION_SCALE = 5
-    BODY_SCALE = 1
+    BODY_SCALE = 100
 
     return db.en.aggregate([
         {
@@ -58,7 +58,7 @@ def get_by_relevance(terms: list, num_entries: int) -> list:
                     {'$multiply' : ['$title_score', TITLE_SCALE]},
                     {'$multiply' : ['$keywords_score', KEYWORD_SCALE]},
                     {'$multiply' : ['$description_score', DESCRIPTION_SCALE]},
-                    {'$multiply' : ['$body_score', BODY_SCALE]},
+                    {'$divide' : [{'$multiply' : ['$body_score', BODY_SCALE]}, {'$sum' : [{'$size' : '$body'}, 1]}]},
                 ]}
             }
         },

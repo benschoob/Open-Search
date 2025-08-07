@@ -12,7 +12,7 @@ Searches the database of pages given various search criteria.
 """
 @app.get("/search")
 def search():
-    query = request.args.get('q', default=None).lower().split()
+    query = request.args.get('q', default=None).lower().split('+')
     num_results = int(request.args.get('n', default=10))
 
     return str(get_by_relevance(query, num_results))

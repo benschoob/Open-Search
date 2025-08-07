@@ -1,0 +1,2 @@
+# Put URLs for web crawler seeds here
+# eg. https://en.wikipedia.org/wiki/Main_Page

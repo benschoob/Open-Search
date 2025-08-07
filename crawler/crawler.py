@@ -11,6 +11,8 @@ import warnings
 
 import pymongo
 
+from configparser import ConfigParser
+
 warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
 
 # Connect to the database
@@ -19,6 +21,9 @@ db = db_client['pages']
 
 seen = set()
 
+# Get configuration info
+config = ConfigParser()
+config.read('./config/crawler.cfg')
 
 """
 Gets a page at a given url and returns it
@@ -78,7 +83,6 @@ async def crawl(url: str, depth: int):
 
     # Database entry task
     obj = parse_page(doc, url)
-    print(obj)
     tasks.append(asyncio.create_task(add_to_db(obj, db)))
 
     # Recursive crawl tasks
@@ -160,12 +164,12 @@ def flatten(lol: list):
 
 async def main():
     # Parse seeds.txt
-    seeds = parse_seeds('./seeds.txt')
+    seeds = parse_seeds('./config/seeds.txt')
     if len(seeds) == 0:
-        print("ERROR: no seeds provided. You can add seeds by editing 'seeds.txt'.")
+        print("ERROR: no seeds provided. You can add seeds by editing 'config/seeds.txt'.")
         exit(1)
 
-    depth = 1
+    depth = config['default']['crawl_depth']
 
     # Generate initial tasks
     tasks = []
@@ -184,7 +188,11 @@ async def main():
     # Print crawl stats
     print(f"Crawl complete. Time elapsed: {end_time - start_time:.2f}s. Pages seen: {len(seen)}")
 
-# Start the main program loop
-loop = asyncio.get_event_loop()
-loop.run_until_complete(main())
-loop.close()
+while True:
+    # Start the main program loop
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main())
+    loop.close()
+
+    # Wait until we do the next crawl
+    time.sleep(config['default']['time_between_crawls'])

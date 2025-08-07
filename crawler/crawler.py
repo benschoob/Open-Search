@@ -76,7 +76,7 @@ async def crawl(url: str, depth: int):
     # Create new tasks
     tasks = []
 
-    # TODO: Database entry task
+    # Database entry task
     obj = parse_page(doc, url)
     print(obj)
     tasks.append(asyncio.create_task(add_to_db(obj, db)))
@@ -125,7 +125,19 @@ Sends a dictionary to the MongoDB database as a JSON object
 """
 async def add_to_db(obj: dict, db: pymongo.database):
     col = db['en'] # Add to the collection of english-language pages
-    col.insert_one(obj)
+    col.update_one(
+        {'url' : obj['url']},
+        {
+            '$set' : {
+                'url'           : obj['url'],
+                'title'         : obj['title'],
+                'description'   : obj['description'],
+                'keywords'      : obj['keywords'],
+                'body'          : obj['body']
+            }
+        },
+        upsert=True # If the document doesn't exist, create it
+    )
     return [] # Don't need to return any additional tasks
 
 """

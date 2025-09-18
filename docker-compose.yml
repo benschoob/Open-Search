@@ -32,6 +32,6 @@ services:
     build: './frontend'
     container_name: r1
     ports:
-      - '3005:3005'
+      - '3000:3000'
     volumes:
       - './frontend:/app'

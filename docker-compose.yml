@@ -31,6 +31,8 @@ services:
   react1:
     build: './frontend'
     container_name: r1
+    profiles:
+      - 'frontend'
     ports:
       - '3000:3000'
     volumes:

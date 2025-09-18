@@ -47,3 +47,7 @@ Where `<search_terms>` is a series of search terms separated by '+' and `<num_re
 ```
 eg. localhost:5000/search?q=wikipedia+the+free+encyclopedia&n=100
 ```
+
+## Using the Frontend
+
+The frontend is currently in development. Please check back later.

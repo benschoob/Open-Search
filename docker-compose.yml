@@ -13,7 +13,6 @@ services:
       timeout: 10s
       retries: 5
       start_period: 40s
-
   crawler1:
     build: './crawler'
     container_name: p1
@@ -22,7 +21,6 @@ services:
     depends_on:
       mongo1:
         condition: service_healthy
-
   server1:
     build: './server'
     container_name: f1
@@ -30,3 +28,10 @@ services:
       - '5000:5000'
     volumes: 
       - './server:/app'
+  react1:
+    build: './frontend'
+    container_name: r1
+    ports:
+      - '3005:3005'
+    volumes:
+      - './frontend:/app'

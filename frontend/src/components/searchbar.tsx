@@ -1,8 +1,11 @@
 import styles from '@/style.module.css';
 import { useState } from 'react';
 
+import { Results } from './results'
+
 export function SearchBar() {
     const [terms, setTerms] = useState('');
+    const [results, setResults] = useState([]);
 
     function getResults(terms: string) {
         const host : string = 'http://server1/search';
@@ -18,10 +21,9 @@ export function SearchBar() {
         // Send the search request to the server
         fetch(request_url)
             .then((resp) => {return resp.json()})
-            .then((results) => {
-                results.array.forEach((e : object) => {
-                    // TODO: create components for each result and add them to the DOM
-                });
+            .then((rs) => {
+                // Parse and display the results
+                setResults(rs);
             });
     }
 
@@ -34,9 +36,7 @@ export function SearchBar() {
                 <input id='search_in' name='search_in' type='text' value={terms} onChange={e => setTerms(e.target.value)}/>
                 <input id='submit' type='submit' />
             </form>
-            <div id='results'>
-
-            </div>
+            <Results results={results} />
         </>
     );
 }
